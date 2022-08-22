@@ -1,0 +1,165 @@
+<section *ngIf="!isMobile">
+  <nz-layout>
+    <nz-sider [nzCollapsedWidth]="100" [nzWidth]="400" nzCollapsible [(nzCollapsed)]="isCollapsed" [nzTrigger]="null">
+      <div class="logo">
+        <p>Filter</p>
+        <div *ngIf="!isCollapsed">
+          <strong>Note:</strong>
+          <span> This is case-sensitive filter</span>
+        </div>
+      </div>
+      <ul nz-menu nzTheme="light" nzMode="inline" [nzInlineCollapsed]="isCollapsed">
+        <div class="ant-row">
+
+          <section class="px-xl-4">
+            <form nz-form  [formGroup]="filterForm" class="mx-auto mt-3" (ngSubmit)="submitForm()">
+              <nz-form-item>
+                <nz-form-control>
+                  <nz-input-group [nzPrefix]="prefixUser">
+                    <input type="text" nz-input formControlName="name_eq" [(ngModel)]="paramName" placeholder="Username" />
+                  </nz-input-group>
+                  <nz-form-explain *ngIf="filterForm.get('name_eq')?.dirty && filterForm.get('name_eq')?.errors"
+                  >Please input your username!</nz-form-explain
+                  >
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-control>
+                  <nz-input-group [nzPrefix]="prefixCompany">
+                    <input type="text" nz-input formControlName="company_eq" [(ngModel)]="paramCompany" placeholder="company" />
+                  </nz-input-group>
+                  <nz-form-explain *ngIf="filterForm.get('company_eq')?.dirty && filterForm.get('company_eq')?.errors"
+                  >Please input your company!</nz-form-explain
+                  >
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-control>
+                  <nz-input-group [nzPrefix]="prefixEmail">
+                    <input type="text" nz-input [(ngModel)]="paramEmail" formControlName="email_eq" placeholder="email" />
+                  </nz-input-group>
+                  <nz-form-explain *ngIf="filterForm.get('email_eq')?.dirty && filterForm.get('email_eq')?.errors"
+                  >Please input your Password!</nz-form-explain
+                  >
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-control>
+                  <nz-input-group [nzPrefix]="prefixMobile">
+                    <input type="text" nz-input [(ngModel)]="paramPhone" formControlName="phone_eq" placeholder="phone" />
+                  </nz-input-group>
+                  <nz-form-explain *ngIf="filterForm.get('phone_eq')?.dirty && filterForm.get('phone_eq')?.errors"
+                  >Please input your Password!</nz-form-explain
+                  >
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-control>
+                  <nz-input-group  [nzPrefix]="prefixDate"  >
+                    <nz-date-picker [nzStyle]="{width: '100%', textAlign: 'center'}" [nzPlaceHolder]="'select Date'"   formControlName="date_eq" [(ngModel)]="paramDate" (ngModelChange)="onChange($event)"></nz-date-picker>
+                  </nz-input-group>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-control>
+                  <nz-select formControlName="country_eq" nzShowSearch nzAllowClear nzPlaceHolder="Select a Country" [(ngModel)]="selectedValue">
+                    <nz-option *ngFor="let country of countries" [nzLabel]="country.label" [nzValue]="country.value"></nz-option>
+                  </nz-select>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-explain class="error-msg" *ngIf="isWrong"
+                >{{errorMsg}}</nz-form-explain>
+              </nz-form-item>
+              <div class="filter-button">
+                <button nz-button class="login-form-button" [nzType]="'primary'">Filter</button>
+              </div>
+            </form>
+          </section>
+        </div>
+      </ul>
+
+    </nz-sider>
+    <nz-layout>
+      <nz-content>
+        <div class="inner-content">
+
+          <section class="ant-col-24">
+            <ng-template #tplTitle>
+              <div class="ant-row">
+                <div class="ant-col-2 hero">
+                  <span>Heroes</span>
+                </div>
+                <div class="ant-col-1 divider">
+                  <nz-divider nzType="vertical"></nz-divider>
+                </div>
+                <div class="ant-col-19 search-input">
+                  <nz-input-group  [nzSuffix]="prefixSearch"  >
+                    <input  nz-input class="input-test" placeholder="Search by full Username (case-sensitive)" [(ngModel)]="searchInput" (keyup)="checkSearch(searchInput)"  />
+                  </nz-input-group>
+                  <div class="ant-col-1 divider">
+                    <nz-divider nzType="vertical"></nz-divider>
+                  </div>
+                  <div class="ant-col-1">
+
+                    <i
+                      nz-tooltip [nzTooltipTitle]="isCollapsed ? 'Expand Filter' : 'Collapse Filter'" nzTooltipPlacement="right"
+                      class="trigger"
+                      nz-icon
+                      [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"
+                      (click)="isCollapsed = !isCollapsed"
+                    ></i>
+                  </div>
+
+                </div>
+              </div>
+            </ng-template>
+            <nz-table #basicTable  nzBordered [nzData]="dataSet" [nzPageSize]="15" [nzTitle]=tplTitle [nzLoading]="isLoading">
+              <thead (nzSortChange)="sort($event)" nzSingleSort>
+              <tr>
+                <th             (nzFilterChange)="filter($event, searchAddress)"
+                                [nzFilters]="listOfName"
+                                nzShowFilter
+                                nzShowSort
+                                nzSortKey="name"
+                                nzSortKey="name">Username</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Date</th>
+                <th>Country</th>
+                <th>Company</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let data of basicTable.data" >
+                <td>{{data.name}}</td>
+                <td>{{data.phone}}</td>
+                <td>{{data.email}}</td>
+                <td>{{data.date | date }}</td>
+                <td>{{data.commonCountryName}}</td>
+                <td>{{data.company}}</td>
+              </tr>
+              </tbody>
+            </nz-table>
+          </section>
+        </div>
+      </nz-content>
+    </nz-layout>
+  </nz-layout>
+  <ng-template #prefixUser><i nz-icon type="user"></i></ng-template>
+  <ng-template #prefixEmail><i nz-icon nzType="mail" nzTheme="outline"></i></ng-template>
+  <ng-template #prefixCompany><i nz-icon nzType="bank" nzTheme="outline"></i></ng-template>
+  <ng-template #prefixMobile><i nz-icon nzType="mobile" nzTheme="outline"></i></ng-template>
+  <ng-template #prefixDate><i nz-icon nzType="calendar" nzTheme="outline"></i></ng-template>
+  <ng-template #prefixSearch><i nz-icon nzType="search" nzTheme="outline"></i></ng-template>
+</section>
+
+<section class="mobile" *ngIf="isMobile">
+  <div class="ant-row">
+    <div class="ant-col-24 text-center">
+      <img class="mobile-icon" src="assets/under_construction.svg" />
+      <h1 class="px-2">sorry for inconvenience</h1>
+      <h3 class="px-2">The version of tablet and mobile is under development.</h3>
+    </div>
+  </div>
+</section>
